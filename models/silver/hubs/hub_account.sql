@@ -1,5 +1,3 @@
-{{ config(materialized='incremental', incremental_strategy='append') }}
-
 with src as (
     select * from {{ ref('bronze_accounts') }}
 ),

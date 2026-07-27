@@ -1,13 +1,12 @@
-{{ config(materialized='table') }}
-
 with link as (
 
-    select * from {{ ref('link_transaction_account_merchant') }}
+    select * from {{ ref('link_account_merchant') }}
 
 ),
 
 -- current satellite version per transaction
 sat_current as (
+
     select distinct on (transaction_hub_key)
         transaction_hub_key,
         amount_usd,
@@ -16,14 +15,17 @@ sat_current as (
         record_source
     from {{ ref('sat_transaction_details') }}
     order by transaction_hub_key, load_date desc
+
 ),
 
 -- account -> customer hop
 customer_account as (
+
     select
         account_hub_key,
         customer_hub_key
     from {{ ref('link_customer_account') }}
+
 )
 
 select

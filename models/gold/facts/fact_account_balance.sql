@@ -1,14 +1,15 @@
-{{ config(materialized='table') }}
-
 with customer_account as (
+
     select
         account_hub_key,
         customer_hub_key
     from {{ ref('link_customer_account') }}
+
 ),
 
 -- current satellite version per account (balance snapshot)
 sat_current as (
+
     select distinct on (account_hub_key)
         account_hub_key,
         balance_usd,
@@ -17,6 +18,7 @@ sat_current as (
         record_source
     from {{ ref('sat_account_details') }}
     order by account_hub_key, load_date desc
+
 )
 
 select

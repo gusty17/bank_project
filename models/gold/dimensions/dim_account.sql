@@ -1,5 +1,3 @@
-{{ config(materialized='table') }}
-
 with sat as (
 
     select * from {{ ref('sat_account_details') }}
@@ -33,15 +31,16 @@ versioned as (
         coalesce(
             lead(sat.load_date) over (
                 partition by sat.account_hub_key
-                order by sat.load_date
+                order by sat.load_date, sat.account_hub_key
             ),
             cast('9999-12-31' as timestamp)
         )                                                                as effective_end_date,
         lead(sat.load_date) over (
             partition by sat.account_hub_key
-            order by sat.load_date
+            order by sat.load_date, sat.account_hub_key
         ) is null                                                        as is_current,
-        sat.record_source
+        sat.record_source,
+        sat.load_date
     from sat
     inner join hub
         on hub.account_hub_key = sat.account_hub_key
@@ -51,7 +50,7 @@ versioned as (
 )
 
 select
-    {{ generate_hub_key(['account_hub_key', 'effective_start_date']) }} as account_key,
+    {{ generate_hub_key(['account_hub_key', 'load_date']) }} as account_key,
     account_hub_key,
     account_id,
     customer_hub_key,

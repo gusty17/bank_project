@@ -1,5 +1,3 @@
-{{ config(materialized='table') }}
-
 with sat as (
 
     select * from {{ ref('sat_branch_details') }}
@@ -25,15 +23,16 @@ versioned as (
         coalesce(
             lead(sat.load_date) over (
                 partition by sat.branch_hub_key
-                order by sat.load_date
+                order by sat.load_date, sat.branch_hub_key
             ),
             cast('9999-12-31' as timestamp)
         )                                                                as effective_end_date,
         lead(sat.load_date) over (
             partition by sat.branch_hub_key
-            order by sat.load_date
+            order by sat.load_date, sat.branch_hub_key
         ) is null                                                        as is_current,
-        sat.record_source
+        sat.record_source,
+        sat.load_date
     from sat
     inner join hub
         on hub.branch_hub_key = sat.branch_hub_key
@@ -41,7 +40,7 @@ versioned as (
 )
 
 select
-    {{ generate_hub_key(['branch_hub_key', 'effective_start_date']) }} as branch_key,
+    {{ generate_hub_key(['branch_hub_key', 'load_date']) }} as branch_key,
     branch_hub_key,
     branch_id,
     branch_name,

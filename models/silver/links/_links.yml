@@ -97,8 +97,8 @@ models:
         description: "Ingestion timestamp inherited from bronze."
         data_tests: [not_null]
 
-  - name: link_transaction_account_merchant
-    description: "Data Vault link relating transactions to their account and merchant. Grain: one row per transaction."
+  - name: link_account_merchant
+    description: "Data Vault link relating transactions to their account and merchant. Grain: one row per transaction (named link_account_merchant per project rules)."
     data_tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:

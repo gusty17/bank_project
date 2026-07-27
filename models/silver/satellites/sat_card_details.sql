@@ -1,5 +1,3 @@
-{{ config(materialized='incremental', incremental_strategy='append') }}
-
 with bronze as (
 
     select * from {{ ref('bronze_cards') }}

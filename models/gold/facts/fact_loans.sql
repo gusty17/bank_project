@@ -1,7 +1,7 @@
-{{ config(materialized='table') }}
-
 with link as (
+
     select * from {{ ref('link_customer_loan') }}
+
 ),
 
 -- current satellite version per loan

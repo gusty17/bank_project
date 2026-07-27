@@ -27,6 +27,12 @@ models:
       - name: customer_id
         description: "Customer business key."
         data_tests: [not_null]
+      - name: credit_tier
+        description: "Derived credit-score bucket (excellent/good/fair/poor/very_poor)."
+        data_tests: [not_null]
+      - name: acquisition_month
+        description: "Derived first-of-month date from created_date."
+        data_tests: [not_null]
       - name: effective_start_date
         data_tests: [not_null]
       - name: is_current
