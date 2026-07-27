@@ -1,0 +1,215 @@
+version: 2
+
+models:
+  - name: dim_date
+    description: "Static calendar dimension generated via dbt_utils.date_spine. Not SCD2."
+    columns:
+      - name: date_key
+        description: "Integer date key in yyyymmdd format."
+        data_tests: [unique, not_null]
+
+  - name: dim_customer
+    description: "SCD Type 2 customer dimension. One row per satellite version with effective dates."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - customer_hub_key
+          config:
+            where: "is_current"
+    columns:
+      - name: customer_key
+        description: "Version surrogate PK (hash of customer_hub_key + load_date values)."
+        data_tests: [unique, not_null]
+      - name: customer_hub_key
+        description: "Durable customer hub key."
+        data_tests: [not_null]
+      - name: customer_id
+        description: "Customer business key."
+        data_tests: [not_null]
+      - name: effective_start_date
+        data_tests: [not_null]
+      - name: is_current
+        data_tests: [not_null]
+
+  - name: dim_account
+    description: "SCD Type 2 account dimension. One row per satellite version with effective dates."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - account_hub_key
+          config:
+            where: "is_current"
+    columns:
+      - name: account_key
+        description: "Version surrogate PK (hash of account_hub_key + load_date values)."
+        data_tests: [unique, not_null]
+      - name: account_hub_key
+        description: "Durable account hub key."
+        data_tests: [not_null]
+      - name: account_id
+        description: "Account business key."
+        data_tests: [not_null]
+      - name: effective_start_date
+        data_tests: [not_null]
+      - name: is_current
+        data_tests: [not_null]
+
+  - name: dim_card
+    description: "SCD Type 2 card dimension. One row per satellite version with effective dates."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - card_hub_key
+          config:
+            where: "is_current"
+    columns:
+      - name: card_key
+        description: "Version surrogate PK (hash of card_hub_key + load_date values)."
+        data_tests: [unique, not_null]
+      - name: card_hub_key
+        description: "Durable card hub key."
+        data_tests: [not_null]
+      - name: card_id
+        description: "Card business key."
+        data_tests: [not_null]
+      - name: effective_start_date
+        data_tests: [not_null]
+      - name: is_current
+        data_tests: [not_null]
+
+  - name: dim_merchant
+    description: "SCD Type 2 merchant dimension. One row per satellite version with effective dates."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - merchant_hub_key
+          config:
+            where: "is_current"
+    columns:
+      - name: merchant_key
+        description: "Version surrogate PK (hash of merchant_hub_key + load_date values)."
+        data_tests: [unique, not_null]
+      - name: merchant_hub_key
+        description: "Durable merchant hub key."
+        data_tests: [not_null]
+      - name: merchant_id
+        description: "Merchant business key."
+        data_tests: [not_null]
+      - name: effective_start_date
+        data_tests: [not_null]
+      - name: is_current
+        data_tests: [not_null]
+
+  - name: dim_branch
+    description: "SCD Type 2 branch dimension (orphan hub — no fact FK). One row per satellite version."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - branch_hub_key
+          config:
+            where: "is_current"
+    columns:
+      - name: branch_key
+        description: "Version surrogate PK (hash of branch_hub_key + load_date values)."
+        data_tests: [unique, not_null]
+      - name: branch_hub_key
+        description: "Durable branch hub key."
+        data_tests: [not_null]
+      - name: branch_id
+        description: "Branch business key."
+        data_tests: [not_null]
+      - name: effective_start_date
+        data_tests: [not_null]
+      - name: is_current
+        data_tests: [not_null]
+
+  - name: fact_transactions
+    description: "Transaction fact. Grain: one row per transaction. Carries durable hub keys."
+    columns:
+      - name: transaction_hub_key
+        description: "Grain key — one row per transaction."
+        data_tests: [unique, not_null]
+      - name: account_hub_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('hub_account')
+                field: account_hub_key
+      - name: merchant_hub_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('hub_merchant')
+                field: merchant_hub_key
+      - name: customer_hub_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('hub_customer')
+                field: customer_hub_key
+      - name: date_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+      - name: amount_usd
+        data_tests: [not_null]
+
+  - name: fact_loans
+    description: "Loan fact. Grain: one row per loan. Carries durable hub keys."
+    columns:
+      - name: loan_hub_key
+        description: "Grain key — one row per loan."
+        data_tests: [unique, not_null]
+      - name: customer_hub_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('hub_customer')
+                field: customer_hub_key
+      - name: date_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+      - name: loan_amount
+        data_tests: [not_null]
+      - name: interest_rate
+        data_tests: [not_null]
+
+  - name: fact_account_balance
+    description: "Current account-balance snapshot fact. date_key/snapshot_date = load_date capture date, not open_date."
+    columns:
+      - name: account_hub_key
+        description: "Grain key — one row per account."
+        data_tests: [unique, not_null]
+      - name: customer_hub_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('hub_customer')
+                field: customer_hub_key
+      - name: date_key
+        description: "As-of / capture date key derived from satellite load_date."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+      - name: balance_usd
+        data_tests: [not_null]
