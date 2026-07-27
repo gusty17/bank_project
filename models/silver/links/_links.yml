@@ -1,0 +1,102 @@
+version: 2
+
+models:
+  - name: link_customer_account
+    description: "Data Vault link relating customers to accounts."
+    columns:
+      - name: customer_account_link_key
+        description: "Hashed key (md5 of customer_id + account_id)."
+        data_tests: [unique, not_null]
+      - name: customer_hub_key
+        description: "FK to hub_customer."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('hub_customer')
+                field: customer_hub_key
+      - name: account_hub_key
+        description: "FK to hub_account."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('hub_account')
+                field: account_hub_key
+
+  - name: link_account_card
+    description: "Data Vault link relating accounts to cards."
+    columns:
+      - name: account_card_link_key
+        description: "Hashed key (md5 of account_id + card_id)."
+        data_tests: [unique, not_null]
+      - name: account_hub_key
+        description: "FK to hub_account."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('hub_account')
+                field: account_hub_key
+      - name: card_hub_key
+        description: "FK to hub_card."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('hub_card')
+                field: card_hub_key
+
+  - name: link_customer_loan
+    description: "Data Vault link relating customers to loans."
+    columns:
+      - name: customer_loan_link_key
+        description: "Hashed key (md5 of customer_id + loan_id)."
+        data_tests: [unique, not_null]
+      - name: customer_hub_key
+        description: "FK to hub_customer."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('hub_customer')
+                field: customer_hub_key
+      - name: loan_hub_key
+        description: "FK to hub_loan."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('hub_loan')
+                field: loan_hub_key
+
+  - name: link_transaction_account_merchant
+    description: "Data Vault link relating transactions to their account and merchant. Grain: one row per transaction."
+    columns:
+      - name: transaction_account_merchant_link_key
+        description: "Hashed key (md5 of transaction_id + account_id + merchant_id)."
+        data_tests: [unique, not_null]
+      - name: transaction_hub_key
+        description: "FK to hub_transaction."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('hub_transaction')
+                field: transaction_hub_key
+      - name: account_hub_key
+        description: "FK to hub_account."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('hub_account')
+                field: account_hub_key
+      - name: merchant_hub_key
+        description: "FK to hub_merchant."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('hub_merchant')
+                field: merchant_hub_key

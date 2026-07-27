@@ -1,0 +1,52 @@
+When generating dbt models for this project, always follow the folder structure, 
+naming conventions, and hub/link/satellite pattern described below exactly.
+
+# Project: Banking Data Pipeline (dbt + PostgreSQL) — Medallion Architecture
+
+## Overview
+This is a learning project implementing a medallion architecture (bronze → silver → gold)
+using dbt and PostgreSQL, based on a synthetic banking dataset loaded into the `public`
+schema in Postgres.
+
+## Source tables (in `public` schema)
+- customers(customer_id, first_name, last_name, email, city, credit_score, created_at)
+- accounts(account_id, customer_id, account_type, balance_usd, open_date)
+- cards(card_id, account_id, card_type, expiration_date)
+- branches(branch_id, branch_name, city, country, manager_name)- loans(loan_id, customer_id, loan_amount, interest_rate, start_date)
+- merchants(merchant_id, merchant_name, city)
+- transactions(transaction_id, account_id, merchant_id, amount_usd, transaction_date)
+
+transactions is the central event table — it links accounts to merchants and is the
+primary fact table candidate for the gold layer.
+
+## Architecture
+
+### Bronze (models/bronze/)
+- One model per source table.
+- Materialized as `table`.
+- Only renaming and type-casting — no business logic, no joins.
+- Each model adds a `record_source` column (literal, value 'kaggle_csv') tagging data origin,
+  and a `_loaded_at` ingestion timestamp. The silver layer INHERITS `record_source` from bronze
+  (passthrough) rather than hardcoding it. `record_source` is descriptive metadata only:
+  it is NEVER hashed into a hub/link key and NEVER part of a satellite hashdiff.
+- Naming: bronze_<table_name>.sql (e.g. bronze_customers.sql, bronze_transactions.sql)
+
+### Silver (models/silver/) — Data Vault
+- hubs/    — one hub per business entity, containing only the hashed business key + load_date + record_source.
+             Materialized incremental, strategy = append (business keys are never updated, only added).
+             Naming: hub_<entity>.sql (e.g. hub_customer.sql, hub_transaction.sql)
+- links/   — relationships between hubs, keyed by a hash of the combined business keys.
+             Materialized incremental, strategy = append.
+             Naming: link_<entity1>_<entity2>.sql (e.g. link_account_merchant.sql, link_customer_account.sql)
+- satellites/ — descriptive/measure attributes with hashdiff-based change detection.
+             KEEP FULL HISTORY: every version of a hub's attributes is retained.
+             Materialized incremental, strategy = append. Each row is a version keyed by
+             (<entity>_hub_key, load_date). On each run, insert a new version row only when
+             the incoming hashdiff differs from the LATEST stored hashdiff for that hub
+             (compared via row_number() over (partition by hub_key order by load_date desc)).
+             Unchanged rows are never re-inserted; older versions are never overwritten.
+             Uniqueness is on the combination (<entity>_hub_key, load_date), not hub_key alone.
+             Naming: sat_<entity>_details.sql (e.g. sat_account_details.sql, sat_transaction_details.sql)
+
+Hub/link keys are generated via the generate_hub_key macro (macros/generate_hub_key.sql),
+which wraps dbt_utils.generate_surroga

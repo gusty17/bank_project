@@ -1,0 +1,72 @@
+version: 2
+
+models:
+  - name: hub_customer
+    description: "Data Vault hub for customers. One row per unique customer business key."
+    columns:
+      - name: customer_hub_key
+        description: "Hashed business key (md5 of customer_id)."
+        data_tests: [unique, not_null]
+      - name: customer_id
+        description: "Customer business key."
+        data_tests: [not_null]
+
+  - name: hub_account
+    description: "Data Vault hub for accounts. One row per unique account business key."
+    columns:
+      - name: account_hub_key
+        description: "Hashed business key (md5 of account_id)."
+        data_tests: [unique, not_null]
+      - name: account_id
+        description: "Account business key."
+        data_tests: [not_null]
+
+  - name: hub_card
+    description: "Data Vault hub for cards. One row per unique card business key."
+    columns:
+      - name: card_hub_key
+        description: "Hashed business key (md5 of card_id)."
+        data_tests: [unique, not_null]
+      - name: card_id
+        description: "Card business key."
+        data_tests: [not_null]
+
+  - name: hub_branch
+    description: "Data Vault hub for branches. Orphan hub (no relationships in source)."
+    columns:
+      - name: branch_hub_key
+        description: "Hashed business key (md5 of branch_id)."
+        data_tests: [unique, not_null]
+      - name: branch_id
+        description: "Branch business key."
+        data_tests: [not_null]
+
+  - name: hub_loan
+    description: "Data Vault hub for loans. One row per unique loan business key."
+    columns:
+      - name: loan_hub_key
+        description: "Hashed business key (md5 of loan_id)."
+        data_tests: [unique, not_null]
+      - name: loan_id
+        description: "Loan business key."
+        data_tests: [not_null]
+
+  - name: hub_merchant
+    description: "Data Vault hub for merchants. One row per unique merchant business key."
+    columns:
+      - name: merchant_hub_key
+        description: "Hashed business key (md5 of merchant_id)."
+        data_tests: [unique, not_null]
+      - name: merchant_id
+        description: "Merchant business key."
+        data_tests: [not_null]
+
+  - name: hub_transaction
+    description: "Data Vault hub for transactions. One row per unique transaction business key."
+    columns:
+      - name: transaction_hub_key
+        description: "Hashed business key (md5 of transaction_id)."
+        data_tests: [unique, not_null]
+      - name: transaction_id
+        description: "Transaction business key."
+        data_tests: [not_null]

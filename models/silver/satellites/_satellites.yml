@@ -1,0 +1,137 @@
+version: 2
+
+models:
+  - name: sat_customer_details
+    description: "Full-history satellite of descriptive customer attributes. One row per (customer_hub_key, load_date) version; new version inserted only when the hashdiff changes."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - customer_hub_key
+              - load_date
+    columns:
+      - name: customer_hub_key
+        description: "FK to hub_customer (repeats across historical versions)."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('hub_customer')
+                field: customer_hub_key
+      - name: hashdiff
+        description: "Hash of all descriptive attributes, used to detect changes."
+        data_tests: [not_null]
+
+  - name: sat_account_details
+    description: "Full-history satellite of descriptive account attributes."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - account_hub_key
+              - load_date
+    columns:
+      - name: account_hub_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('hub_account')
+                field: account_hub_key
+      - name: hashdiff
+        data_tests: [not_null]
+
+  - name: sat_card_details
+    description: "Full-history satellite of descriptive card attributes."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - card_hub_key
+              - load_date
+    columns:
+      - name: card_hub_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('hub_card')
+                field: card_hub_key
+      - name: hashdiff
+        data_tests: [not_null]
+
+  - name: sat_branch_details
+    description: "Full-history satellite of descriptive branch attributes."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - branch_hub_key
+              - load_date
+    columns:
+      - name: branch_hub_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('hub_branch')
+                field: branch_hub_key
+      - name: hashdiff
+        data_tests: [not_null]
+
+  - name: sat_loan_details
+    description: "Full-history satellite of descriptive loan attributes."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - loan_hub_key
+              - load_date
+    columns:
+      - name: loan_hub_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('hub_loan')
+                field: loan_hub_key
+      - name: hashdiff
+        data_tests: [not_null]
+
+  - name: sat_merchant_details
+    description: "Full-history satellite of descriptive merchant attributes."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - merchant_hub_key
+              - load_date
+    columns:
+      - name: merchant_hub_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('hub_merchant')
+                field: merchant_hub_key
+      - name: hashdiff
+        data_tests: [not_null]
+
+  - name: sat_transaction_details
+    description: "Full-history satellite of descriptive/measure transaction attributes."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - transaction_hub_key
+              - load_date
+    columns:
+      - name: transaction_hub_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('hub_transaction')
+                field: transaction_hub_key
+      - name: hashdiff
+        data_tests: [not_null]
