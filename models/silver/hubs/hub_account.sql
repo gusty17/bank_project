@@ -1,21 +1,17 @@
 {{ config(materialized='incremental', incremental_strategy='append') }}
 
 with src as (
-
     select * from {{ ref('bronze_accounts') }}
-
 ),
 
 hashed as (
-
     select
         {{ generate_hub_key(['account_id']) }} as account_hub_key,
-        account_id,
+        cast(account_id as varchar(20)) as account_id,
         _loaded_at        as load_date,
         record_source,
         row_number() over (partition by account_id order by _loaded_at) as rn
     from src
-
 )
 
 select

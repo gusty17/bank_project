@@ -24,14 +24,19 @@ primary fact table candidate for the gold layer.
 ### Bronze (models/bronze/)
 - One model per source table.
 - Materialized as `table`.
-- Only renaming and type-casting — no business logic, no joins.
-- Each model adds a `record_source` column (literal, value 'kaggle_csv') tagging data origin,
-  and a `_loaded_at` ingestion timestamp. The silver layer INHERITS `record_source` from bronze
-  (passthrough) rather than hardcoding it. `record_source` is descriptive metadata only:
-  it is NEVER hashed into a hub/link key and NEVER part of a satellite hashdiff.
+- RAW extract only: `select source.*` — NO casting, NO trim, NO renaming, no business logic, no joins.
+- The only additions are two lineage/metadata columns (not data transformations):
+  `record_source` (literal, value 'kaggle_csv') and `_loaded_at` (ingestion timestamp).
+- All type-casting/renaming happens later, in the silver layer.
+- The silver layer INHERITS `record_source` from bronze (passthrough) rather than hardcoding it.
+  `record_source` is descriptive metadata only: NEVER hashed into a hub/link key and NEVER part of a satellite hashdiff.
 - Naming: bronze_<table_name>.sql (e.g. bronze_customers.sql, bronze_transactions.sql)
 
 ### Silver (models/silver/) — Data Vault
+- Simple transformations live here: type-casting (e.g. numeric/date casts) applied inside the DV
+  models via a `casted` CTE. NO trim() and no heavy business logic. Any renames (e.g. created_at ->
+  created_date) also happen here. Business keys are hashed from the raw column so the hash stays
+  identical across hubs, links, and satellites. Prefer flat CTEs / DISTINCT ON over nested subqueries.
 - hubs/    — one hub per business entity, containing only the hashed business key + load_date + record_source.
              Materialized incremental, strategy = append (business keys are never updated, only added).
              Naming: hub_<entity>.sql (e.g. hub_customer.sql, hub_transaction.sql)
@@ -43,7 +48,7 @@ primary fact table candidate for the gold layer.
              Materialized incremental, strategy = append. Each row is a version keyed by
              (<entity>_hub_key, load_date). On each run, insert a new version row only when
              the incoming hashdiff differs from the LATEST stored hashdiff for that hub
-             (compared via row_number() over (partition by hub_key order by load_date desc)).
+             (latest fetched via DISTINCT ON (<entity>_hub_key) ordered by load_date desc).
              Unchanged rows are never re-inserted; older versions are never overwritten.
              Uniqueness is on the combination (<entity>_hub_key, load_date), not hub_key alone.
              Naming: sat_<entity>_details.sql (e.g. sat_account_details.sql, sat_transaction_details.sql)

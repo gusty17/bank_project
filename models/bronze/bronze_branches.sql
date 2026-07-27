@@ -4,13 +4,13 @@ with source as (
 
 )
 
+-- raw extract: columns passed through as-is (no casting, no trim, no renaming).
 select
-    cast(branch_id as varchar(20))      as branch_id,
-    trim(branch_name)                   as branch_name,
-    trim(city)                          as city,
-    trim(country)                       as country,
-    trim(manager_name)                  as manager_name,
-    'kaggle_csv'                        as record_source,
-    current_timestamp                   as _loaded_at
-
+    branch_id,
+    branch_name,
+    city,
+    country,
+    manager_name,
+    'kaggle_csv'      as record_source,
+    current_timestamp as _loaded_at
 from source

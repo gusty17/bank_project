@@ -10,7 +10,7 @@ hashed as (
 
     select
         {{ generate_hub_key(['transaction_id']) }} as transaction_hub_key,
-        transaction_id,
+        cast(transaction_id as varchar(50)) as transaction_id,
         _loaded_at            as load_date,
         record_source,
         row_number() over (partition by transaction_id order by _loaded_at) as rn

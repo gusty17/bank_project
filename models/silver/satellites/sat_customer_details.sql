@@ -1,12 +1,30 @@
 {{ config(materialized='incremental', incremental_strategy='append') }}
 
-with src as (
+with bronze as (
 
     select * from {{ ref('bronze_customers') }}
 
 ),
 
-hashed as (
+-- simple transformations: type casting + rename (no trim)
+casted as (
+
+    select
+        customer_id,
+        first_name,
+        last_name,
+        email,
+        city,
+        cast(credit_score as integer) as credit_score,
+        cast(created_at as date)      as created_date,
+        _loaded_at,
+        record_source
+    from bronze
+
+),
+
+-- add the hub key + a fingerprint (hashdiff) of the descriptive attributes
+incoming as (
 
     select
         {{ generate_hub_key(['customer_id']) }} as customer_hub_key,
@@ -19,27 +37,30 @@ hashed as (
         {{ dbt_utils.generate_surrogate_key([
             'first_name', 'last_name', 'email', 'city', 'credit_score', 'created_date'
         ]) }} as hashdiff,
-        _loaded_at        as load_date,
+        _loaded_at as load_date,
         record_source
-    from src
+    from casted
 
 )
 
-select h.*
-from hashed h
 {% if is_incremental() %}
-left join (
-    select customer_hub_key, hashdiff
-    from (
-        select
-            customer_hub_key,
-            hashdiff,
-            row_number() over (partition by customer_hub_key order by load_date desc) as rn
-        from {{ this }}
-    ) ranked
-    where rn = 1
-) latest
-  on h.customer_hub_key = latest.customer_hub_key
-where latest.customer_hub_key is null
-   or h.hashdiff <> latest.hashdiff
+-- the latest stored version per customer (flat query, no nested subquery)
+, current_version as (
+
+    select distinct on (customer_hub_key)
+        customer_hub_key,
+        hashdiff
+    from {{ this }}
+    order by customer_hub_key, load_date desc
+
+)
+{% endif %}
+
+select incoming.*
+from incoming
+{% if is_incremental() %}
+left join current_version cv
+    on cv.customer_hub_key = incoming.customer_hub_key
+where cv.customer_hub_key is null            -- brand-new customer
+   or incoming.hashdiff <> cv.hashdiff        -- attributes changed
 {% endif %}

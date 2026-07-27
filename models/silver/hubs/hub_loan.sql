@@ -10,7 +10,7 @@ hashed as (
 
     select
         {{ generate_hub_key(['loan_id']) }} as loan_hub_key,
-        loan_id,
+        cast(loan_id as varchar(20)) as loan_id,
         _loaded_at     as load_date,
         record_source,
         row_number() over (partition by loan_id order by _loaded_at) as rn

@@ -4,10 +4,11 @@ with source as (
 
 )
 
+-- raw extract: columns passed through as-is (no casting, no trim, no renaming).
 select
-    cast(merchant_id as varchar(20))    as merchant_id,
-    trim(merchant_name)                 as merchant_name,
-    trim(city)                          as city,
-    'kaggle_csv'                        as record_source,
-    current_timestamp                   as _loaded_at
+    merchant_id,
+    merchant_name,
+    city,
+    'kaggle_csv'      as record_source,
+    current_timestamp as _loaded_at
 from source

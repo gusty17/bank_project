@@ -9,6 +9,9 @@ models:
         data_tests: [unique, not_null]
       - name: customer_id
         description: "Customer business key."
+        data_tests: [unique, not_null]
+      - name: load_date
+        description: "Ingestion timestamp inherited from bronze."
         data_tests: [not_null]
 
   - name: hub_account
@@ -19,6 +22,9 @@ models:
         data_tests: [unique, not_null]
       - name: account_id
         description: "Account business key."
+        data_tests: [unique, not_null]
+      - name: load_date
+        description: "Ingestion timestamp inherited from bronze."
         data_tests: [not_null]
 
   - name: hub_card
@@ -29,6 +35,9 @@ models:
         data_tests: [unique, not_null]
       - name: card_id
         description: "Card business key."
+        data_tests: [unique, not_null]
+      - name: load_date
+        description: "Ingestion timestamp inherited from bronze."
         data_tests: [not_null]
 
   - name: hub_branch
@@ -39,6 +48,9 @@ models:
         data_tests: [unique, not_null]
       - name: branch_id
         description: "Branch business key."
+        data_tests: [unique, not_null]
+      - name: load_date
+        description: "Ingestion timestamp inherited from bronze."
         data_tests: [not_null]
 
   - name: hub_loan
@@ -49,6 +61,9 @@ models:
         data_tests: [unique, not_null]
       - name: loan_id
         description: "Loan business key."
+        data_tests: [unique, not_null]
+      - name: load_date
+        description: "Ingestion timestamp inherited from bronze."
         data_tests: [not_null]
 
   - name: hub_merchant
@@ -59,6 +74,9 @@ models:
         data_tests: [unique, not_null]
       - name: merchant_id
         description: "Merchant business key."
+        data_tests: [unique, not_null]
+      - name: load_date
+        description: "Ingestion timestamp inherited from bronze."
         data_tests: [not_null]
 
   - name: hub_transaction
@@ -69,4 +87,7 @@ models:
         data_tests: [unique, not_null]
       - name: transaction_id
         description: "Transaction business key."
+        data_tests: [unique, not_null]
+      - name: load_date
+        description: "Ingestion timestamp inherited from bronze."
         data_tests: [not_null]

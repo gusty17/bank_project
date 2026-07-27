@@ -21,6 +21,9 @@ models:
       - name: hashdiff
         description: "Hash of all descriptive attributes, used to detect changes."
         data_tests: [not_null]
+      - name: load_date
+        description: "Version timestamp; half of the satellite grain."
+        data_tests: [not_null]
 
   - name: sat_account_details
     description: "Full-history satellite of descriptive account attributes."
@@ -39,6 +42,9 @@ models:
                 to: ref('hub_account')
                 field: account_hub_key
       - name: hashdiff
+        data_tests: [not_null]
+      - name: load_date
+        description: "Version timestamp; half of the satellite grain."
         data_tests: [not_null]
 
   - name: sat_card_details
@@ -59,6 +65,9 @@ models:
                 field: card_hub_key
       - name: hashdiff
         data_tests: [not_null]
+      - name: load_date
+        description: "Version timestamp; half of the satellite grain."
+        data_tests: [not_null]
 
   - name: sat_branch_details
     description: "Full-history satellite of descriptive branch attributes."
@@ -77,6 +86,9 @@ models:
                 to: ref('hub_branch')
                 field: branch_hub_key
       - name: hashdiff
+        data_tests: [not_null]
+      - name: load_date
+        description: "Version timestamp; half of the satellite grain."
         data_tests: [not_null]
 
   - name: sat_loan_details
@@ -97,6 +109,9 @@ models:
                 field: loan_hub_key
       - name: hashdiff
         data_tests: [not_null]
+      - name: load_date
+        description: "Version timestamp; half of the satellite grain."
+        data_tests: [not_null]
 
   - name: sat_merchant_details
     description: "Full-history satellite of descriptive merchant attributes."
@@ -116,6 +131,9 @@ models:
                 field: merchant_hub_key
       - name: hashdiff
         data_tests: [not_null]
+      - name: load_date
+        description: "Version timestamp; half of the satellite grain."
+        data_tests: [not_null]
 
   - name: sat_transaction_details
     description: "Full-history satellite of descriptive/measure transaction attributes."
@@ -134,4 +152,7 @@ models:
                 to: ref('hub_transaction')
                 field: transaction_hub_key
       - name: hashdiff
+        data_tests: [not_null]
+      - name: load_date
+        description: "Version timestamp; half of the satellite grain."
         data_tests: [not_null]

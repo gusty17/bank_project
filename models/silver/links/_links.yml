@@ -3,6 +3,12 @@ version: 2
 models:
   - name: link_customer_account
     description: "Data Vault link relating customers to accounts."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - customer_hub_key
+              - account_hub_key
     columns:
       - name: customer_account_link_key
         description: "Hashed key (md5 of customer_id + account_id)."
@@ -23,9 +29,18 @@ models:
               arguments:
                 to: ref('hub_account')
                 field: account_hub_key
+      - name: load_date
+        description: "Ingestion timestamp inherited from bronze."
+        data_tests: [not_null]
 
   - name: link_account_card
     description: "Data Vault link relating accounts to cards."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - account_hub_key
+              - card_hub_key
     columns:
       - name: account_card_link_key
         description: "Hashed key (md5 of account_id + card_id)."
@@ -46,9 +61,18 @@ models:
               arguments:
                 to: ref('hub_card')
                 field: card_hub_key
+      - name: load_date
+        description: "Ingestion timestamp inherited from bronze."
+        data_tests: [not_null]
 
   - name: link_customer_loan
     description: "Data Vault link relating customers to loans."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - customer_hub_key
+              - loan_hub_key
     columns:
       - name: customer_loan_link_key
         description: "Hashed key (md5 of customer_id + loan_id)."
@@ -69,9 +93,19 @@ models:
               arguments:
                 to: ref('hub_loan')
                 field: loan_hub_key
+      - name: load_date
+        description: "Ingestion timestamp inherited from bronze."
+        data_tests: [not_null]
 
   - name: link_transaction_account_merchant
     description: "Data Vault link relating transactions to their account and merchant. Grain: one row per transaction."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - transaction_hub_key
+              - account_hub_key
+              - merchant_hub_key
     columns:
       - name: transaction_account_merchant_link_key
         description: "Hashed key (md5 of transaction_id + account_id + merchant_id)."
@@ -100,3 +134,6 @@ models:
               arguments:
                 to: ref('hub_merchant')
                 field: merchant_hub_key
+      - name: load_date
+        description: "Ingestion timestamp inherited from bronze."
+        data_tests: [not_null]

@@ -60,7 +60,7 @@ sources:
 
 models:
   - name: bronze_customers
-    description: "Cleaned/typed customer records. Renaming and type-casting only."
+    description: "Raw customer extract (no casting/trim/rename); adds record_source + _loaded_at metadata."
     columns:
       - name: customer_id
         data_tests: [unique, not_null]
@@ -68,7 +68,7 @@ models:
         description: "Data origin tag. Value 'kaggle_csv'; inherited by the silver layer."
         data_tests: [not_null]
   - name: bronze_accounts
-    description: "Cleaned/typed account records. balance_usd cast to numeric(15,2)."
+    description: "Raw account extract (no transformation); adds record_source + _loaded_at metadata."
     columns:
       - name: account_id
         data_tests: [unique, not_null]
@@ -76,7 +76,7 @@ models:
         description: "Data origin tag. Value 'kaggle_csv'; inherited by the silver layer."
         data_tests: [not_null]
   - name: bronze_cards
-    description: "Cleaned/typed card records."
+    description: "Raw card extract (no transformation); adds record_source + _loaded_at metadata."
     columns:
       - name: card_id
         data_tests: [unique, not_null]
@@ -84,7 +84,7 @@ models:
         description: "Data origin tag. Value 'kaggle_csv'; inherited by the silver layer."
         data_tests: [not_null]
   - name: bronze_branches
-    description: "Cleaned/typed branch records."
+    description: "Raw branch extract (no transformation); adds record_source + _loaded_at metadata."
     columns:
       - name: branch_id
         data_tests: [unique, not_null]
@@ -92,7 +92,7 @@ models:
         description: "Data origin tag. Value 'kaggle_csv'; inherited by the silver layer."
         data_tests: [not_null]
   - name: bronze_loans
-    description: "Cleaned/typed loan records. Amount/rate cast to explicit precision."
+    description: "Raw loan extract (no transformation); adds record_source + _loaded_at metadata."
     columns:
       - name: loan_id
         data_tests: [unique, not_null]
@@ -100,7 +100,7 @@ models:
         description: "Data origin tag. Value 'kaggle_csv'; inherited by the silver layer."
         data_tests: [not_null]
   - name: bronze_merchants
-    description: "Cleaned/typed merchant records."
+    description: "Raw merchant extract (no transformation); adds record_source + _loaded_at metadata."
     columns:
       - name: merchant_id
         data_tests: [unique, not_null]
@@ -108,7 +108,7 @@ models:
         description: "Data origin tag. Value 'kaggle_csv'; inherited by the silver layer."
         data_tests: [not_null]
   - name: bronze_transactions
-    description: "Cleaned/typed transaction events. amount_usd cast to numeric(15,2); transaction_date is a timestamp."
+    description: "Raw transaction extract (no transformation); adds record_source + _loaded_at metadata."
     columns:
       - name: transaction_id
         data_tests: [unique, not_null]
