@@ -44,6 +44,36 @@ models/
     └── facts/
 ```
 
+## Connect to Neon (PostgreSQL)
+
+Credentials live in **`.env`** (gitignored). A template is in **`.env.example`**.
+
+1. Copy the template if needed:
+   ```powershell
+   copy .env.example .env
+   ```
+2. Fill in `.env` with your Neon host, user, password, and database.
+
+Connection is configured in **`profiles.yml`** (project root) using `env_var()` — no secrets in git.
+
+**PowerShell — load `.env` and run dbt:**
+
+```powershell
+cd D:\bank\dbt_banking_project\bank_project
+Get-Content .env | ForEach-Object {
+  if ($_ -match '^\s*([^#=]+?)=(.*)$') {
+    Set-Item -Path "env:$($matches[1].Trim())" -Value $matches[2].Trim()
+  }
+}
+$env:DBT_PROFILES_DIR = "."
+dbt debug
+dbt build
+```
+
+Or set `DBT_PROFILES_DIR=.` once per session so dbt uses this project's `profiles.yml` instead of `~/.dbt/profiles.yml`.
+
+**Note:** Bronze sources expect raw tables in the **`public`** schema (`customers`, `accounts`, …). Load your CSV/data into Neon `public` before running bronze.
+
 ## Run
 
 ```bash

@@ -33,6 +33,21 @@ models:
       - name: acquisition_month
         description: "Derived first-of-month date from created_date."
         data_tests: [not_null]
+      - name: total_account_count
+        description: "Derived count of current accounts per customer (from dim_account where is_current)."
+        data_tests: [not_null]
+      - name: checking_account_count
+        description: "Derived count of current Checking accounts per customer."
+        data_tests: [not_null]
+      - name: savings_account_count
+        description: "Derived count of current Savings accounts per customer."
+        data_tests: [not_null]
+      - name: total_loan_count
+        description: "Derived count of loans per customer (from fact_loans)."
+        data_tests: [not_null]
+      - name: total_loan_amount
+        description: "Derived sum of loan_amount per customer (from fact_loans)."
+        data_tests: [not_null]
       - name: effective_start_date
         data_tests: [not_null]
       - name: is_current
